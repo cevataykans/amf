@@ -8,10 +8,9 @@
 PROJECT_NAME             := sdcore
 DOCKER_VERSION           ?= $(shell cat ./VERSION)
 
-## Docker related
 DOCKER_REGISTRY          ?=
-DOCKER_REPOSITORY        ?=
-DOCKER_TAG               ?= ${DOCKER_VERSION}
+DOCKER_REPOSITORY        ?= cevataykans/
+DOCKER_TAG               ?= ${VERSION}
 DOCKER_IMAGENAME         := ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}${PROJECT_NAME}:${DOCKER_TAG}
 DOCKER_BUILDKIT          ?= 1
 DOCKER_BUILD_ARGS        ?=

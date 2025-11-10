@@ -1,131 +1,38 @@
-# SPDX-License-Identifier: Apache-2.0
-# Copyright 2023 Canonical Ltd.
-# Copyright 2024-Present Intel Corporation
-name: CI Pipeline
-
+name: main.yml
 on:
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
   push:
     branches:
       - main
+    paths:
+      - '**.go'
+      - '**/Dockerfile*'
 
-permissions:
-  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_USERNAME: 'cevataykans'
 
 jobs:
-  build:
+  publish_image:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest ]
+    timeout-minutes: 10
     permissions:
       contents: read
-      actions: read
-      security-events: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/build.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  docker-build:
-    permissions:
-      contents: read
-      packages: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/docker-build.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  static-analysis:
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/static-analysis.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  lint:
-    permissions:
-      contents: read
-      checks: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/lint.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  hadolint:
-    permissions:
-      contents: read
-      security-events: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/hadolint.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  license-check:
-    permissions:
-      contents: read
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/license-check.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  fossa-scan:
-    permissions:
-      contents: read
-      security-events: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/fossa-scan.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  unit-tests:
-    permissions:
-      contents: read
-      checks: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/unit-test.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  analysis:
-    if: github.repository_owner == 'omec-project'
-    permissions:
-      actions: read
-      attestations: read
-      checks: read
-      contents: read
-      deployments: read
-      discussions: read
-      id-token: write
-      issues: read
-      models: read
-      packages: read
-      pages: read
-      pull-requests: read
-      repository-projects: read
-      security-events: write
-      statuses: read
-    uses: omec-project/.github/.github/workflows/scorecard-analysis.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
-
-  e2e-tests:
-    if: github.event_name == 'pull_request'
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
-      id-token: write
-      attestations: write
-    uses: omec-project/.github/.github/workflows/e2e-test.yml@453e42d23f0366133ec7c053ee92a97f374f3ac5 # v0.0.1
-    with:
-      branch_name: ${{ github.ref }}
+    name: Publish Docker Image ${{ matrix.os == 'ubuntu-latest' && 'AMD' || 'ARM' }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_BOT_ACCESS }}
+      - name: Build & Publish
+        run: |
+          make docker-build
+          make docker-push
