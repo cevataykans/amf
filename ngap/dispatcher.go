@@ -29,54 +29,52 @@ import (
 
 var tracer = otel.Tracer("amf/ngap")
 
-// ngapHandlerFunc is a unified function type for all NGAP message handlers
 type ngapHandlerFunc func(ctx ctxt.Context, ran *context.AmfRan, message *ngapType.NGAPPDU, sctplbMsg *sdcoreAmfServer.SctplbMessage)
 
-// Handler maps keyed by ProcedureCode.Value
 var (
 	initiatingMessageHandlers = map[int64]ngapHandlerFunc{
-		ngapType.ProcedureCodeNGSetup:                          HandleNGSetupRequest,
-		ngapType.ProcedureCodeInitialUEMessage:                 HandleInitialUEMessage,
-		ngapType.ProcedureCodeUplinkNASTransport:               HandleUplinkNasTransport,
-		ngapType.ProcedureCodeNGReset:                          HandleNGReset,
-		ngapType.ProcedureCodeHandoverCancel:                   HandleHandoverCancel,
-		ngapType.ProcedureCodeUEContextReleaseRequest:          HandleUEContextReleaseRequest,
-		ngapType.ProcedureCodeNASNonDeliveryIndication:         HandleNasNonDeliveryIndication,
-		ngapType.ProcedureCodeLocationReportingFailureIndication: HandleLocationReportingFailureIndication,
-		ngapType.ProcedureCodeErrorIndication:                  HandleErrorIndication,
-		ngapType.ProcedureCodeUERadioCapabilityInfoIndication:  HandleUERadioCapabilityInfoIndication,
-		ngapType.ProcedureCodeHandoverNotification:            HandleHandoverNotify,
-		ngapType.ProcedureCodeHandoverPreparation:              HandleHandoverRequired,
-		ngapType.ProcedureCodeRANConfigurationUpdate:          HandleRanConfigurationUpdate,
-		ngapType.ProcedureCodeRRCInactiveTransitionReport:      HandleRRCInactiveTransitionReport,
-		ngapType.ProcedureCodePDUSessionResourceNotify:         HandlePDUSessionResourceNotify,
-		ngapType.ProcedureCodePathSwitchRequest:                HandlePathSwitchRequest,
-		ngapType.ProcedureCodeLocationReport:                   HandleLocationReport,
-		ngapType.ProcedureCodeUplinkUEAssociatedNRPPaTransport: HandleUplinkUEAssociatedNRPPATransport,
-		ngapType.ProcedureCodeUplinkRANConfigurationTransfer:    HandleUplinkRanConfigurationTransfer,
-		ngapType.ProcedureCodePDUSessionResourceModifyIndication: HandlePDUSessionResourceModifyIndication,
-		ngapType.ProcedureCodeCellTrafficTrace:                 HandleCellTrafficTrace,
-		ngapType.ProcedureCodeUplinkRANStatusTransfer:          HandleUplinkRanStatusTransfer,
+		ngapType.ProcedureCodeNGSetup:                             HandleNGSetupRequest,
+		ngapType.ProcedureCodeInitialUEMessage:                    HandleInitialUEMessage,
+		ngapType.ProcedureCodeUplinkNASTransport:                  HandleUplinkNasTransport,
+		ngapType.ProcedureCodeNGReset:                             HandleNGReset,
+		ngapType.ProcedureCodeHandoverCancel:                      HandleHandoverCancel,
+		ngapType.ProcedureCodeUEContextReleaseRequest:             HandleUEContextReleaseRequest,
+		ngapType.ProcedureCodeNASNonDeliveryIndication:            HandleNasNonDeliveryIndication,
+		ngapType.ProcedureCodeLocationReportingFailureIndication:  HandleLocationReportingFailureIndication,
+		ngapType.ProcedureCodeErrorIndication:                     HandleErrorIndication,
+		ngapType.ProcedureCodeUERadioCapabilityInfoIndication:     HandleUERadioCapabilityInfoIndication,
+		ngapType.ProcedureCodeHandoverNotification:                HandleHandoverNotify,
+		ngapType.ProcedureCodeHandoverPreparation:                 HandleHandoverRequired,
+		ngapType.ProcedureCodeRANConfigurationUpdate:              HandleRanConfigurationUpdate,
+		ngapType.ProcedureCodeRRCInactiveTransitionReport:         HandleRRCInactiveTransitionReport,
+		ngapType.ProcedureCodePDUSessionResourceNotify:            HandlePDUSessionResourceNotify,
+		ngapType.ProcedureCodePathSwitchRequest:                   HandlePathSwitchRequest,
+		ngapType.ProcedureCodeLocationReport:                      HandleLocationReport,
+		ngapType.ProcedureCodeUplinkUEAssociatedNRPPaTransport:    HandleUplinkUEAssociatedNRPPATransport,
+		ngapType.ProcedureCodeUplinkRANConfigurationTransfer:      HandleUplinkRanConfigurationTransfer,
+		ngapType.ProcedureCodePDUSessionResourceModifyIndication:  HandlePDUSessionResourceModifyIndication,
+		ngapType.ProcedureCodeCellTrafficTrace:                    HandleCellTrafficTrace,
+		ngapType.ProcedureCodeUplinkRANStatusTransfer:             HandleUplinkRanStatusTransfer,
 		ngapType.ProcedureCodeUplinkNonUEAssociatedNRPPaTransport: HandleUplinkNonUEAssociatedNRPPATransport,
 	}
 
 	successfulOutcomeHandlers = map[int64]ngapHandlerFunc{
-		ngapType.ProcedureCodeNGReset:                  HandleNGResetAcknowledge,
-		ngapType.ProcedureCodeUEContextRelease:         HandleUEContextReleaseComplete,
-		ngapType.ProcedureCodePDUSessionResourceRelease: HandlePDUSessionResourceReleaseResponse,
-		ngapType.ProcedureCodeUERadioCapabilityCheck:   HandleUERadioCapabilityCheckResponse,
-		ngapType.ProcedureCodeAMFConfigurationUpdate:   HandleAMFconfigurationUpdateAcknowledge,
-		ngapType.ProcedureCodeInitialContextSetup:     HandleInitialContextSetupResponse,
-		ngapType.ProcedureCodeUEContextModification:    HandleUEContextModificationResponse,
-		ngapType.ProcedureCodePDUSessionResourceSetup:  HandlePDUSessionResourceSetupResponse,
-		ngapType.ProcedureCodePDUSessionResourceModify:  HandlePDUSessionResourceModifyResponse,
+		ngapType.ProcedureCodeNGReset:                    HandleNGResetAcknowledge,
+		ngapType.ProcedureCodeUEContextRelease:           HandleUEContextReleaseComplete,
+		ngapType.ProcedureCodePDUSessionResourceRelease:  HandlePDUSessionResourceReleaseResponse,
+		ngapType.ProcedureCodeUERadioCapabilityCheck:     HandleUERadioCapabilityCheckResponse,
+		ngapType.ProcedureCodeAMFConfigurationUpdate:     HandleAMFconfigurationUpdateAcknowledge,
+		ngapType.ProcedureCodeInitialContextSetup:        HandleInitialContextSetupResponse,
+		ngapType.ProcedureCodeUEContextModification:      HandleUEContextModificationResponse,
+		ngapType.ProcedureCodePDUSessionResourceSetup:    HandlePDUSessionResourceSetupResponse,
+		ngapType.ProcedureCodePDUSessionResourceModify:   HandlePDUSessionResourceModifyResponse,
 		ngapType.ProcedureCodeHandoverResourceAllocation: HandleHandoverRequestAcknowledge,
 	}
 
 	unsuccessfulOutcomeHandlers = map[int64]ngapHandlerFunc{
-		ngapType.ProcedureCodeAMFConfigurationUpdate:   HandleAMFconfigurationUpdateFailure,
-		ngapType.ProcedureCodeInitialContextSetup:       HandleInitialContextSetupFailure,
-		ngapType.ProcedureCodeUEContextModification:     HandleUEContextModificationFailure,
+		ngapType.ProcedureCodeAMFConfigurationUpdate:     HandleAMFconfigurationUpdateFailure,
+		ngapType.ProcedureCodeInitialContextSetup:        HandleInitialContextSetupFailure,
+		ngapType.ProcedureCodeUEContextModification:      HandleUEContextModificationFailure,
 		ngapType.ProcedureCodeHandoverResourceAllocation: HandleHandoverFailure,
 	}
 )
@@ -166,11 +164,10 @@ func DispatchLb(ctx ctxt.Context, sctplbMsg *sdcoreAmfServer.SctplbMessage, Amf2
 			NgapMsg:   pdu,
 			SctplbMsg: sctplbMsg,
 		}
-
 		ranUe.AmfUe.EventChannel.SubmitMessage(ngapMsg)
-	} else {
-		go DispatchNgapMsg(ctx, ran, pdu, sctplbMsg)
+		return
 	}
+	go DispatchNgapMsg(ctx, ran, pdu, sctplbMsg)
 }
 
 func Dispatch(conn net.Conn, msg []byte) {
@@ -242,7 +239,6 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 			code = pdu.UnsuccessfulOutcome.ProcedureCode.Value
 		}
 	}
-	procName := ngapType.ProcedureName(code)
 
 	peer := "unknown"
 	if ran != nil && ran.Conn != nil {
@@ -251,6 +247,7 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 		}
 	}
 
+	procName := ngapType.ProcedureName(code)
 	if procName == "" {
 		procName = fmt.Sprintf("UnknownProcedureCode_%d", code)
 		logger.AppLog.Warnf("Encountered unknown NGAP procedure code: %d from RAN: %s", code, peer)
@@ -280,7 +277,6 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 		}
 		handlerMap = initiatingMessageHandlers
 		procedureCode = initiatingMessage.ProcedureCode.Value
-		procedureCodePtr = &initiatingMessage.ProcedureCode.Value
 		metrics.IncrementNgapMsgStats(context.AMF_Self().NfId,
 			ngapmsgtypes.NgapMsg[procedureCode],
 			"in",
@@ -295,7 +291,6 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 		}
 		handlerMap = successfulOutcomeHandlers
 		procedureCode = successfulOutcome.ProcedureCode.Value
-		procedureCodePtr = &successfulOutcome.ProcedureCode.Value
 		metrics.IncrementNgapMsgStats(context.AMF_Self().NfId,
 			ngapmsgtypes.NgapMsg[procedureCode],
 			"in",
@@ -310,7 +305,6 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 		}
 		handlerMap = unsuccessfulOutcomeHandlers
 		procedureCode = unsuccessfulOutcome.ProcedureCode.Value
-		procedureCodePtr = &unsuccessfulOutcome.ProcedureCode.Value
 		metrics.IncrementNgapMsgStats(context.AMF_Self().NfId,
 			ngapmsgtypes.NgapMsg[procedureCode],
 			"in",
@@ -323,12 +317,11 @@ func DispatchNgapMsg(ctx ctxt.Context, ran *context.AmfRan, pdu *ngapType.NGAPPD
 	}
 
 	// Lookup and call handler from map
-	handler, ok := handlerMap[procedureCode]
-	if !ok {
+	handler := handlerMap[procedureCode]
+	if handler == nil {
 		ran.Log.Warnf("Not implemented(choice: %d, procedureCode: %d)", pdu.Present, procedureCode)
 		return
 	}
-
 	handler(ctx, ran, pdu, sctplbMsg)
 }
 
